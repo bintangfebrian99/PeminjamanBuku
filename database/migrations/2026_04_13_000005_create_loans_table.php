@@ -13,8 +13,8 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->foreignId('book_id')->constrained()->cascadeOnDelete();
             
-            // PERBAIKAN 1: Tambahkan 'pending' dan 'ditolak' ke dalam enum
-            $table->enum('status', ['pending', 'pinjam', 'kembali', 'ditolak'])->default('pending');
+// Fixed: Use 'rejected' consistent with controller/validation/form
+            $table->enum('status', ['pending', 'pinjam', 'rejected', 'kembali'])->default('pending');
             
             // PERBAIKAN 2: Tambahkan kolom yang ada di Model Loan.php tapi belum ada di migration
             $table->date('expected_return_date')->nullable();

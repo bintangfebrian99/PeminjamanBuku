@@ -1,4 +1,4 @@
-<x-layouts.app title="Admin Dashboard" heading="Admin Dashboard">
+Connection.php<x-layouts.app title="Admin Dashboard" heading="Admin Dashboard">
     <section class="mb-8 grid gap-6 lg:grid-cols-2 xl:grid-cols-4">
         <div class="rounded-3xl border border-white/10 bg-gradient-to-br from-slate-900 to-sky-950/70 p-6 shadow-2xl shadow-slate-950/30">
             <div class="flex items-center">

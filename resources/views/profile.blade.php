@@ -1,4 +1,6 @@
-<x-layouts.app title="Profil" heading="Profil Saya">
+<x-layouts.app title="Profil">
+    <x-layouts.profile-header :unread-count="$unreadCount" :notifications="$notifications" />
+
     <section class="mb-12">
         <div class="grid gap-8 lg:grid-cols-3">
             {{-- Profile Card --}}
@@ -58,6 +60,54 @@
         </div>
     </section>
 
+    <section class="mb-12">
+        <div class="rounded-3xl border border-white/10 bg-slate-900/80 p-8 shadow-2xl shadow-slate-950/30">
+            <div class="flex items-center justify-between gap-4">
+                <div>
+                    <h3 class="text-2xl font-semibold text-white">Notifikasi</h3>
+                    <p class="mt-1 text-sm text-slate-400">Status persetujuan atau penolakan peminjaman akan muncul di sini.</p>
+                </div>
+                <div class="rounded-full bg-white/5 px-4 py-2 text-sm text-slate-300">
+                    {{ $unreadCount }} belum dibaca
+                </div>
+            </div>
+
+            <div class="mt-6 space-y-4">
+                @forelse($notifications as $notification)
+                    <div class="rounded-2xl border p-5 @if(!$notification->read_at) border-sky-400/30 bg-sky-500/5 @else border-white/10 bg-white/5 @endif">
+                        <div class="flex items-start justify-between gap-4">
+                            <div>
+                                <p class="text-sm font-semibold text-white">{{ $notification->data['title'] ?? 'Notifikasi' }}</p>
+                                <p class="mt-1 text-sm text-slate-300">{{ $notification->data['message'] ?? '-' }}</p>
+                                @if(!empty($notification->data['reason']))
+                                    <p class="mt-2 inline-flex rounded-full border border-rose-400/30 bg-rose-400/10 px-3 py-1 text-xs text-rose-300">
+                                        Alasan: {{ $notification->data['reason'] }}
+                                    </p>
+                                @endif
+                                <p class="mt-3 text-xs text-slate-500">{{ $notification->created_at?->format('d M Y H:i') }}</p>
+                            </div>
+                            @if(!$notification->read_at)
+                                <button
+                                    type="button"
+                                    class="shrink-0 rounded-xl bg-sky-500 px-4 py-2 text-xs font-semibold text-white transition hover:bg-sky-400"
+                                    onclick="markNotificationAsRead('{{ $notification->id }}', '{{ route('notifications.read', $notification->id) }}')"
+                                >
+                                    Tandai dibaca
+                                </button>
+                            @endif
+                        </div>
+                    </div>
+                @empty
+                    <div class="rounded-2xl border border-dashed border-white/15 bg-slate-950/40 p-8 text-center text-sm text-slate-400">
+                        Belum ada notifikasi untuk akun ini.
+                    </div>
+                @endforelse
+            </div>
+        </div>
+    </section>
+
+
+
     {{-- Loan History --}}
     <section>
         <div class="rounded-3xl border border-white/10 bg-slate-900/80 p-8 shadow-2xl shadow-slate-950/30">
@@ -85,7 +135,7 @@
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-white/5">
-                            @foreach($loans as $loan)
+@foreach($loans as $loan)
                                 @php
                                     $statusClass = match ($loan->status) {
                                         'pending' => 'bg-amber-400/10 text-amber-300 ring-1 ring-amber-400/30',
@@ -107,6 +157,11 @@
                                     <td class="px-6 py-5">
                                         <div class="font-semibold text-white max-w-xs truncate">{{ $loan->book->judul }}</div>
                                         <div class="text-sm text-slate-400 truncate">{{ $loan->book->penulis }}</div>
+                                        @if($loan->rejected_reason)
+                                        <div class="text-xs text-rose-400 mt-1 bg-rose-400/10 p-2 rounded-lg">
+                                            Alasan: {{ Str::limit($loan->rejected_reason, 100) }}
+                                        </div>
+                                        @endif
                                     </td>
                                     <td class="px-6 py-5">
                                         <span class="inline-flex rounded-full px-3 py-1 text-xs font-semibold {{ $statusClass }}">
@@ -150,3 +205,20 @@
         </div>
     </section>
 </x-layouts.app>
+<script>
+    async function markNotificationAsRead(notificationId, url) {
+        try {
+            await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                    'Accept': 'application/json'
+                }
+            });
+
+            window.location.reload();
+        } catch (error) {
+            console.error('Failed to mark notification as read', error);
+        }
+    }
+</script>

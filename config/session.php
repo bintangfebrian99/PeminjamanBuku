@@ -18,7 +18,7 @@ return [
     |
     */
 
-    'driver' => env('SESSION_DRIVER', 'database'),
+'driver' => env('SESSION_DRIVER', 'file'),
 
     /*
     |--------------------------------------------------------------------------
@@ -156,7 +156,13 @@ return [
     |
     */
 
-    'domain' => env('SESSION_DOMAIN'),
+    'domain' => value(function () {
+        $domain = env('SESSION_DOMAIN');
+
+        return filled($domain) && strtolower((string) $domain) !== 'null'
+            ? $domain
+            : null;
+    }),
 
     /*
     |--------------------------------------------------------------------------

@@ -23,6 +23,7 @@ Route::middleware('guest')->group(function (): void {
 });
 
 Route::middleware('auth')->group(function (): void {
+    Route::post('/notifications/{id}/read', [ProfileController::class, 'markNotificationRead'])->name('notifications.read');
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
     Route::get('/books', [BookController::class, 'publicIndex'])->name('books.index');

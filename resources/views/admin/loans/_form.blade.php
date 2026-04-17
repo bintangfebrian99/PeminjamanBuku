@@ -54,6 +54,21 @@
         <input id="expected_return_time" name="expected_return_time" type="time" value="{{ $selectedReturnTime }}" required
             class="w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-slate-100 outline-none transition focus:border-sky-400">
     </div>
+
+    <div>
+        <label for="alamat" class="mb-2 block text-sm font-medium text-slate-200">Alamat (Opsional)</label>
+        <textarea id="alamat" name="alamat" rows="2" 
+            class="w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-slate-100 outline-none transition focus:border-sky-400 resize-vertical"
+            placeholder="Alamat peminjam...">{{ old('alamat', $loan->alamat ?? '') }}</textarea>
+    </div>
+
+    <div>
+        <label for="nomor_hp" class="mb-2 block text-sm font-medium text-slate-200">Nomor HP (Opsional)</label>
+        <input id="nomor_hp" type="tel" name="nomor_hp" 
+            class="w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-slate-100 outline-none transition focus:border-sky-400"
+            value="{{ old('nomor_hp', $loan->nomor_hp ?? '') }}" placeholder="08123456789">
+    </div>
+
     <div class="flex items-center gap-3">
         <button type="submit" class="rounded-2xl bg-sky-500 px-6 py-3 font-semibold text-white transition hover:bg-sky-400 flex-1">
             Simpan

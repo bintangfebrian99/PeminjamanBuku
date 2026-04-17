@@ -31,6 +31,27 @@
                 @enderror
             </div>
 
+            <div>
+                <label class="block text-sm font-medium text-slate-200 mb-2">Alamat Lengkap</label>
+                <textarea name="alamat" rows="3" required
+                    class="w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-slate-100 focus:border-sky-400 focus:outline-none transition resize-vertical" 
+                    placeholder="Masukkan alamat lengkap Anda..."></textarea>
+                @error('alamat')
+                    <p class="mt-1 text-xs text-rose-400">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-slate-200 mb-2">Nomor HP / Telepon</label>
+                <input type="tel" name="nomor_hp" required maxlength="12" inputmode="numeric" pattern="08[0-9]{10}"
+                    class="w-full rounded-2xl border border-white/10 bg-slate-950 px-4 py-3 text-slate-100 focus:border-sky-400 focus:outline-none transition"
+                    placeholder="Contoh: 081234567890">
+                <p class="mt-1 text-xs text-slate-400">Harus 12 digit dan diawali dengan 08.</p>
+                @error('nomor_hp')
+                    <p class="mt-1 text-xs text-rose-400">{{ $message }}</p>
+                @enderror
+            </div>
+
             <div class="flex gap-3 pt-4">
                 <button type="submit" class="flex-1 rounded-2xl bg-emerald-500 px-6 py-3 font-semibold text-white transition hover:bg-emerald-400">
                     Ajukan Peminjaman

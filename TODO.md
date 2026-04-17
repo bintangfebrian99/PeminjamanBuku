@@ -1,23 +1,15 @@
-# Book Seeders Enhancement (New Task)
+# TODO: Fix Migration Error and Login Issues
 
-## Plan Breakdown:
-- [x] **Step 1**: Create `database/factories/BookFactory.php` with realistic fake data (Indonesian books context).
-- [x] **Step 2**: Edit `database/seeders/BookSeeder.php` to keep existing 6 books + add `Book::factory(50)->create()`.
-- [x] **Step 3**: Test: Run `php artisan db:seed --class=BookSeeder` and verify ~56 books in database. ✅ Passed.
-- [x] **Step 4**: Update DatabaseSeeder if needed (already calls it). ✅ No change needed.
-- [x] **Step 5**: Run `php artisan migrate:fresh --seed` full test. (Suggested in completion). ✅ Ready.
-[x] **Complete**: Book seeders fully enhanced with factory support. ✅
+## Step 1: [COMPLETE] Edit database/migrations/0001_01_01_000003_create_notifications_table.php
 
-**Previous TODO preserved below for reference:**
+## Step 2: [COMPLETE] Edit resources/views/auth/login.blade.php  
 
-# Fix SQLite CHECK constraint violation on loans.status
+## Step 3: [COMPLETE] Run php artisan migrate
 
-## Steps:
-- [x] 1. Create new migration to update SQLite CHECK constraint for loans.status to include all 4 values: 'pending', 'pinjam', 'rejected', 'kembali'
-- [ ] 2. Run `php artisan migrate` to apply the migration
-- [ ] 3. Verify schema with sqlite3 query
-- [ ] 4. Test creating admin loan with status='pending'
-- [ ] 5. Mark complete
+## Step 4: [COMPLETE] Run php artisan db:seed
 
-**Current: Step 2 - Migration created, need to run php artisan migrate (PowerShell syntax issue, run manually or confirm success)**
+## Step 5: [COMPLETE] Test login with admin@gmail.com / admin123
 
+## Step 6: [COMPLETE] Run php artisan config:clear && php artisan cache:clear
+
+## Step 7: [COMPLETE] All steps complete - task finished

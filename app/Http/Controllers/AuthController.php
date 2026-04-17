@@ -20,7 +20,12 @@ class AuthController extends Controller
 
     public function login(LoginRequest $request): RedirectResponse
     {
-        if (! Auth::attempt($request->only('email', 'password'), $request->boolean('remember'))) {
+        $credentials = $request->validated();
+
+        if (! Auth::attempt([
+            'email' => $credentials['email'],
+            'password' => $credentials['password'],
+        ], $request->boolean('remember'))) {
             throw ValidationException::withMessages([
                 'email' => __('Email atau password tidak sesuai.'),
             ]);

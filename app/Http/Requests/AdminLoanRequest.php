@@ -25,6 +25,8 @@ class AdminLoanRequest extends FormRequest
             'status' => ['required', 'in:pending,pinjam,rejected,kembali'],
             'expected_return_date' => ['required', 'date'],
             'expected_return_time' => ['required', 'date_format:H:i'],
+            'alamat' => ['nullable', 'string', 'max:500'],
+            'nomor_hp' => ['nullable', 'string', 'max:20'],
         ];
     }
 
@@ -44,6 +46,10 @@ class AdminLoanRequest extends FormRequest
             'expected_return_date.date' => 'Tanggal pengembalian tidak valid.',
             'expected_return_time.required' => 'Waktu pengembalian harus diisi.',
             'expected_return_time.date_format' => 'Format waktu tidak valid. Gunakan HH:MM.',
+            'alamat.string' => 'Alamat harus berupa teks.',
+            'alamat.max' => 'Alamat terlalu panjang.',
+            'nomor_hp.string' => 'Nomor HP harus berupa teks.',
+            'nomor_hp.max' => 'Nomor HP terlalu panjang.',
         ];
     }
 }

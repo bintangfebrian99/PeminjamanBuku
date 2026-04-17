@@ -7,6 +7,8 @@ use App\Models\Loan;
 use App\Http\Requests\AdminLoanRequest;
 use App\Models\User;
 use App\Models\Book;
+use App\Notifications\LoanApproved;
+use App\Notifications\LoanRejected;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\DB;
@@ -76,22 +78,34 @@ class LoanController extends Controller
             $lockedBook->decrement('stok');
         });
 
+        $loan->refresh()->loadMissing(['user', 'book']);
+        $loan->user->notify(new LoanApproved($loan));
+
         return redirect()->route('admin.loans.index')
-            ->with('success', 'Peminjaman berhasil disetujui.');
+            ->with('success', 'Peminjaman berhasil disetujui dan user diberi notifikasi.');
     }
 
-    public function reject(Loan $loan): RedirectResponse
+    public function reject(Request $request, Loan $loan): RedirectResponse
     {
         abort_if($loan->status !== 'pending', 403);
 
+        $validated = $request->validate([
+            'rejected_reason' => ['nullable', 'string', 'max:500'],
+        ]);
+
         $loan->update([
             'status' => 'rejected',
+            'rejected_reason' => $validated['rejected_reason'] ?? null,
+            'rejected_at' => now(),
             'borrowed_at' => null,
             'returned_at' => null,
         ]);
 
+        $loan->refresh()->loadMissing(['user', 'book']);
+        $loan->user->notify(new LoanRejected($loan));
+
         return redirect()->route('admin.loans.index')
-            ->with('success', 'Peminjaman berhasil ditolak.');
+            ->with('success', 'Peminjaman berhasil ditolak dan user diberi notifikasi.');
     }
 
     public function create(): View
@@ -105,8 +119,9 @@ class LoanController extends Controller
     public function store(AdminLoanRequest $request): RedirectResponse
     {
         $validated = $request->validated();
+        $createdLoan = null;
 
-        DB::transaction(function () use ($validated) {
+        DB::transaction(function () use ($validated, &$createdLoan) {
             $book = Book::lockForUpdate()->findOrFail($validated['book_id']);
 
             if ($validated['status'] === 'pinjam' && $book->stok < 1) {
@@ -126,7 +141,7 @@ class LoanController extends Controller
                 ]);
             }
 
-            Loan::create($validated + [
+            $createdLoan = Loan::create($validated + [
                 'borrowed_at' => $validated['status'] === 'pinjam' ? now() : null,
                 'returned_at' => $validated['status'] === 'kembali' ? now() : null,
             ]);
@@ -135,6 +150,10 @@ class LoanController extends Controller
                 $book->decrement('stok');
             }
         });
+
+        if ($createdLoan) {
+            $this->dispatchLoanStatusNotification($createdLoan);
+        }
 
         return redirect()->route('admin.loans.index')
             ->with('success', 'Peminjaman baru berhasil dibuat.');
@@ -151,6 +170,8 @@ class LoanController extends Controller
     public function update(AdminLoanRequest $request, Loan $loan): RedirectResponse
     {
         $validated = $request->validated();
+        $originalStatus = $loan->status;
+        $originalRejectedReason = $loan->rejected_reason;
 
         DB::transaction(function () use ($loan, $validated) {
             $lockedLoan = Loan::query()->whereKey($loan->id)->lockForUpdate()->firstOrFail();
@@ -217,6 +238,18 @@ class LoanController extends Controller
             $lockedLoan->update($payload);
         });
 
+        $loan->refresh();
+
+        if (
+            $loan->status === 'pinjam' && $originalStatus !== 'pinjam'
+            || $loan->status === 'rejected' && (
+                $originalStatus !== 'rejected'
+                || $loan->rejected_reason !== $originalRejectedReason
+            )
+        ) {
+            $this->dispatchLoanStatusNotification($loan);
+        }
+
         return redirect()->route('admin.loans.index')
             ->with('success', 'Peminjaman berhasil diupdate.');
     }
@@ -233,5 +266,16 @@ class LoanController extends Controller
 
         return redirect()->route('admin.loans.index')
             ->with('success', 'Peminjaman berhasil dihapus.');
+    }
+
+    private function dispatchLoanStatusNotification(Loan $loan): void
+    {
+        $loan->refresh()->loadMissing(['user', 'book']);
+
+        match ($loan->status) {
+            'pinjam' => $loan->user->notify(new LoanApproved($loan)),
+            'rejected' => $loan->user->notify(new LoanRejected($loan)),
+            default => null,
+        };
     }
 }
