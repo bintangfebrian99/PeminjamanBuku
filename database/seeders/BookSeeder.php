@@ -75,7 +75,5 @@ class BookSeeder extends Seeder
                 $book
             );
         }
-
-        Book::factory(5)->create();
     }
 }

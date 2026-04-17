@@ -26,13 +26,13 @@ class BookFactory extends Factory
         ];
 
         return [
-            'judul' => fake()->words(4, true),
-            'penulis' => fake()->name(),
-            'penerbit' => fake()->company(),
-            'tahun_penerbit' => fake()->year('1980', '2024'),
-            'deskripsi' => fake()->paragraph(),
-            'stok' => fake()->numberBetween(1, 10),
-            'cover_image' => fake()->randomElement($coverImages),
+            'judul' => $this->faker->words(4, true),
+            'penulis' => $this->faker->name(),
+            'penerbit' => $this->faker->company(),
+            'tahun_penerbit' => $this->faker->numberBetween(1980, 2024),
+            'deskripsi' => $this->faker->paragraph(),
+            'stok' => $this->faker->numberBetween(1, 10),
+            'cover_image' => $this->faker->randomElement($coverImages),
         ];
     }
 }
